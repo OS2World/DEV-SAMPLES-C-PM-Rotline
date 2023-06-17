@@ -1,7 +1,10 @@
-NAME  Pin  WINDOWAPI
+;-------------------------------------
+; ROTLINE.DEF module definition file
+;-------------------------------------
 
-DESCRIPTION 'PIN - A Test program'
+NAME  ROTLINE  WINDOWAPI
 
-PROTMODE
+DESCRIPTION '@#OS2World:1.01#@##1## 14 Jun 2023 20:00:00     ARCAOS-507::::::v1.01@@Simple use of two threads in a drawing application'
+
 HEAPSIZE    32768
-STACKSIZE   16384
+

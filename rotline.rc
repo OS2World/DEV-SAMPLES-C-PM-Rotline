@@ -1,3 +1,7 @@
+/*----------------------------------
+   ROTLINE.RC resource script file
+  ----------------------------------*/
+
 #define INCL_WIN
 #include <os2.h>
 #include "rotline.h"

@@ -6,8 +6,6 @@
 //
 //  Purpose  : Demonstrate simple use of two threads in a drawing application
 //
-//  Last update : 1-Nov-1994
-//
 //---------------------------------------------------------------------------
 
 #define INCL_DOSPROCESS
@@ -18,7 +16,8 @@
 #include <os2.h>
 #include "rotline.h"
 #include <stdlib.h>
-#include <string.h#include <stdio.h >
+#include <string.h>
+#include <stdio.h >
 
 // Define our user messages that we can post to our second thread.
 
@@ -41,7 +40,7 @@ LONG   lShape;     // Type of shape to draw
 
 #define ROTLINE_CLASSNAME "ROTLINE"
 
-MRESULT EXPENTRY ClientWndProc( HWND hwnd ,USHORT msg ,MPARAM mp1 ,MPARAM mp2 );
+MRESULT EXPENTRY ClientWndProc( HWND hwnd ,ULONG msg ,MPARAM mp1 ,MPARAM mp2 );
 VOID DrawLines( HWND hwnd, PPOINTL ppointlStart, PRECTL prectl );
 VOID DrawBoxes( HWND hwnd, PPOINTL ppointlStart, PRECTL prectl );
 VOID DrawShape( HWND hwnd );
@@ -64,7 +63,7 @@ VOID DoTextString( HWND hwnd );
 //
 // --------------------------------------------------------------------------
 
-void main(VOID)
+int main(VOID)
 {
    HWND hwndFrame;    // Frame window handle
    HWND hwndclient;    // Client window handle
@@ -95,17 +94,17 @@ void main(VOID)
    while( !hmq2 )
    {
      // Wait for the second thread to initialize
-     DosSleep( 0 );
+     DosSleep( 1 );
    };
 
    // Initialize the primary thread
 
-   hab = WinInitialize( (USHORT)NULL );
+   hab = WinInitialize( 0 );
 
    hmq=WinCreateMsgQueue( hab,0 );
 
    WinRegisterClass( hab
-                   , ROTLINE_CLASSNAME
+                   , (PCSZ) ROTLINE_CLASSNAME
                    , (PFNWP)ClientWndProc
                    , (ULONG)CS_SIZEREDRAW
                    , (USHORT)256 );
@@ -113,8 +112,8 @@ void main(VOID)
    hwndFrame = WinCreateStdWindow( HWND_DESKTOP
                                  ,  0UL
                                  ,  &flCreateFlags
-                                 ,  ROTLINE_CLASSNAME
-                                 ,  "Rotline - Line rotation"
+                                 ,  (PCSZ) ROTLINE_CLASSNAME
+                                 ,  (PCSZ) "Rotline - Line rotation"
                                  ,  WS_VISIBLE
                                  ,  (HMODULE)0
                                  ,  ID_ROTLINE
@@ -145,7 +144,7 @@ void main(VOID)
 //  Client window procedure.
 //
 // --------------------------------------------------------------------------
-MRESULT EXPENTRY ClientWndProc(HWND hwnd, USHORT msg, MPARAM mp1, MPARAM mp2)
+MRESULT EXPENTRY ClientWndProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 {
 
    static HWND hwndMenu;
@@ -239,6 +238,7 @@ MRESULT EXPENTRY ClientWndProc(HWND hwnd, USHORT msg, MPARAM mp1, MPARAM mp2)
        return( WinDefWindowProc( hwnd, msg, mp1, mp2 )) ;
      }
    }
+   return 0;
 }
 
 //--------------------------------------------------------------------------
@@ -423,7 +423,7 @@ VOID ThreadProc( LONG arg )
        {
          hwnd2 = (HWND)qmsg2.mp1;
   
-         WinSetWindowText( WinQueryWindow( hwnd2, QW_PARENT), "Thread busy" );
+         WinSetWindowText( WinQueryWindow( hwnd2, QW_PARENT), (PCSZ) "Thread busy" );
 
          for( i=1; i < MAX_LOOP; i++ )
          {
@@ -451,7 +451,7 @@ VOID ThreadProc( LONG arg )
 
          if ( qmsg2.msg == UM_STOP )
          {
-           WinSetWindowText( WinQueryWindow( hwnd2, QW_PARENT), "Thread waiting" );
+           WinSetWindowText( WinQueryWindow( hwnd2, QW_PARENT), (PCSZ) "Thread waiting" );
          }
        }
        break;
@@ -504,9 +504,9 @@ VOID DoCube( HWND hwnd, PRECTL prectl )
   FIXED fxScale[2];
   POINTL ptlTrans;
 
-  POINTL cube[24] = { 0,0,0,20,0,20,20,20,20,20,20,0,20,0,0,0,0,0,10,10,
-                     10,10,30,10,30,10,20,0,0,20,10,30,10,30,30,30,30,30,
-                     30,10,20,20,30,30,10,10,10,30 };
+  POINTL cube[24] = { {0,0},{0,20},{0,20},{20,20},{20,20},{20,0},{20,0},{0,0},{0,0},{10,10},
+                     {10,10},{30,10},{30,10},{20,0},{0,20},{10,30},{10,30},{30,30},{30,30},
+                     {30,10},{20,20},{30,30},{10,10},{10,30} };
 
   hps = WinGetPS( hwnd );
 
@@ -572,9 +572,9 @@ VOID DoPolygons( HPS hps )
 {
   LONG i;
   POLYGON  aplygn[3];
-  POINTL   aptlFront[4] = { 0,0,20,0,20,20,0,20 };
-  POINTL   aptlTop[5]   = { 0,20,20,20,30,30,10,30,0,20 };
-  POINTL   aptlSide[5]  = { 20,0,30,10,30,30,20,20,20,0 };
+  POINTL   aptlFront[4] = { {0,0},{20,0},{20,20},{0,20} };
+  POINTL   aptlTop[5]   = { {0,20},{20,20},{30,30},{10,30},{0,20} };
+  POINTL   aptlSide[5]  = { {20,0},{30,10},{30,30},{20,20},{20,0} };
 
   GpiSetBackMix( hps, BM_OVERPAINT );
   GpiSetMix( hps, FM_OVERPAINT );
@@ -643,9 +643,9 @@ VOID DoTextString( HWND hwnd )
   FATTRS fattrs;
   LONG i;
   POINTL pointl;
-  POINTL  ptlDef[16]  = { 10,0, 10,5, 10,10, 5,10, 0,10, -5,10, -10,10,
-                         -10,5, -10,0, -10,-5,-10,-10, -5,-10, 0,-10, 5,
-                         -10, 10,-10, 10,-5 };
+  POINTL  ptlDef[16]  = { {10,0}, {10,5}, {10,10}, {5,10}, {0,10}, {-5,10}, {-10,10},
+                         {-10,5}, {-10,0}, {-10,-5},{-10,-10}, {-5,-10}, {0,-10}, {5,
+                         -10}, {10,-10}, {10,-5} };
 
   hps = WinGetPS( hwnd );
 
@@ -679,10 +679,10 @@ VOID DoTextString( HWND hwnd )
     GpiSetCurrentPosition( hps, &pointl );
     g.x = ptlDef[i].x ; g.y= ptlDef[i].y ;
     GpiSetCharAngle( hps, &g);
-    GpiCharString( hps, 3L, "GPI" );
+    GpiCharString( hps, 3L, (PCCH) "GPI" );
     GpiSetCurrentPosition( hps, &pointl );
     DosSleep( 50 );
-    GpiCharString( hps, 3L, "GPI" );
+    GpiCharString( hps, 3L, (PCCH) "GPI" );
   }
 
   WinReleasePS( hps );

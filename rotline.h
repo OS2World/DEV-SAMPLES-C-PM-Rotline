@@ -1,3 +1,7 @@
+/*------------------------
+   ROTLINE.H header file
+  ------------------------*/
+
 #define ID_ROTLINE      100
 
 #define IDM_RESUME    900

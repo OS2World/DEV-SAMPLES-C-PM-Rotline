@@ -1,14 +1,20 @@
-#-----------------
-# ROTLINE make file
-#-----------------
+# nmake makefile
+#
+# Tools used:
+#  Compile::Watcom Resource Compiler
+#  Compile::GNU C
+#  Make: GNU make
+all : rotline.exe
 
-rotline.exe : rotline.obj rotline.def rotline.res rotline.lnk
-     link386 @rotline.lnk
-     rc rotline.res rotline.exe
-     mapsym rotline
+rotline.exe : rotline.obj rotline.def 
+	gcc -Zomf rotline.obj rotline.def -o rotline.exe
+	wrc rotline.res
 
-rotline.obj : rotline.c rotline.h
-     icc /O /Kb /Mp /C /Sm /Ss rotline.c
+rotline.obj : rotline.c rotline.h 
+	gcc -Wall -Zomf -c -O2 rotline.c -o rotline.obj
 
-rotline.res : rotline.rc rotline.h
-     rc -r rotline.rc
+rotline.res : rotline.rc 
+	wrc -r rotline.rc
+
+clean :
+	rm -rf *exe *RES *obj
